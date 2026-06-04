@@ -1,0 +1,19 @@
+{
+  "name": "chat-docs",
+  "version": "1.0.0",
+  "description": "Chat Docs application - Using langchain and RAG",
+  "license": "ISC",
+  "author": "AR",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev":"node --watch --env-file=.env server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-async-handler": "^1.2.0",
+    "multer": "^2.1.1"
+  }
+}
