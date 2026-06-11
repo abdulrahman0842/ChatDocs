@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import upload from "./src/utils/upload.js"
 import { initDataIngestion } from "./src/RAG/data-ingestion.js"
+import { dataRetrieval } from "./src/RAG/data-retrieval.js"
 const app = express()
 const port = process.env.PORT || 5000
 
@@ -19,9 +20,12 @@ app.post("/upload-pdf", upload.single('pdf'), (req, res) => {
     }
     initDataIngestion(req.file.path)
     res.json({ msg: "file recieved", file: { name: req.file.originalname } })
+})
 
-
-
+app.post("/chat", async (req, res) => {
+    const { query } = req.body
+    await dataRetrieval(query)
+    res.json({ msg: "Query Recieved", query: query })
 })
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
