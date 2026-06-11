@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
 import upload from "./src/utils/upload.js"
-import { initDataIngestion } from "./src/utils/data-ingestion.js"
+import { initDataIngestion } from "./src/RAG/data-ingestion.js"
 const app = express()
 const port = process.env.PORT || 5000
 
