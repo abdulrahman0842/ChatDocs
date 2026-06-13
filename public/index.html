@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG PDF Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar styling for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* Typing animation keyframes */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .dot {
+            animation: bounce 1s infinite ease-in-out;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body class="bg-[#111827] text-gray-100 h-screen flex flex-col font-sans antialiased">
+
+    <header class="bg-[#1f2937] border-b border-gray-800 px-6 py-4 flex items-center justify-between shadow-lg z-10">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                <i class="fa-solid fa-brain text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">RAG Knowledge Assistant</h1>
+                <p class="text-xs text-gray-400">Powered by Express & LangChain.js</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <aside class="w-80 bg-[#1f2937] border-r border-gray-800 p-6 flex flex-col justify-between hidden md:flex">
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">1. Knowledge Base</h2>
+                    <p class="text-xs text-gray-500">Drop a PDF document here. It will automatically parse and vectorize into the database upon selection.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div id="dropZone" class="border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-xl p-6 transition text-center group cursor-pointer relative bg-[#111827]/30">
+                        <input type="file" id="pdfFile" accept=".pdf" required 
+                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        <div class="space-y-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-500 group-hover:text-indigo-400 transition"></i>
+                            <div class="text-xs text-gray-300 font-medium">Click to browse or drag file</div>
+                            <p class="text-[10px] text-gray-500">PDF up to 10MB</p>
+                        </div>
+                    </div>
+
+                    <div id="fileNameDisplay" class="text-xs text-gray-400 truncate hidden bg-[#111827] p-2 rounded border border-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-paperclip text-indigo-400"></i> 
+                        <span id="fileNameText" class="truncate flex-1"></span>
+                    </div>
+                </div>
+
+                <div id="uploadStatusContainer" class="hidden p-3.5 rounded-xl border text-xs flex items-start gap-2.5">
+                    <div id="statusIcon"></div>
+                    <div id="uploadStatus" class="font-medium flex-1"></div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-4 text-center">
+                <span class="text-[11px] text-gray-500"><i class="fa-solid fa-shield-halved mr-1"></i> Auto-Ingestion Engine Active</span>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-[#111827]">
+            
+            <div id="chatWindow" class="flex-1 p-6 overflow-y-auto space-y-6 max-w-4xl w-full mx-auto flex flex-col">
+                <div class="flex items-start gap-3 max-w-2xl">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30 flex-shrink-0">
+                        <i class="fa-solid fa-robot text-xs"></i>
+                    </div>
+                    <div class="bg-[#1f2937] border border-gray-800 text-gray-200 p-4 rounded-2xl shadow-md leading-relaxed text-sm">
+                        Hello! Upload a PDF on the left panel, then type your query below. I will search through the context matrices and provide a synthesis.
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-gradient-to-t from-[#111827] via-[#111827] to-transparent">
+                <div class="max-w-4xl w-full mx-auto">
+                    <form id="chatForm" class="flex gap-3 bg-[#1f2937] p-2 rounded-2xl border border-gray-800 focus-within:border-indigo-500/50 transition shadow-xl relative items-center">
+                        <input type="text" id="userInput" placeholder="Ask something about the document..." required autocomplete="off"
+                               class="flex-1 bg-transparent text-gray-200 placeholder-gray-500 px-3 py-2 text-sm focus:outline-none" />
+                        <button type="submit" id="chatSubmitBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-lg shadow-indigo-600/20 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </form>
+                    <p class="text-center text-[11px] text-gray-600 mt-2">Responses map semantic matching scores from the vector indexes.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chatForm');
+        const chatWindow = document.getElementById('chatWindow');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const uploadStatusContainer = document.getElementById('uploadStatusContainer');
+        const statusIcon = document.getElementById('statusIcon');
+        const pdfFileInput = document.getElementById('pdfFile');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fileNameText = document.getElementById('fileNameText');
+        const chatSubmitBtn = document.getElementById('chatSubmitBtn');
+        const dropZone = document.getElementById('dropZone');
+
+        // Automatically trigger Ingestion System when file selection happens
+        pdfFileInput.addEventListener('change', async (e) => {
+            if (e.target.files.length === 0) {
+                fileNameDisplay.classList.add('hidden');
+                return;
+            }
+
+            const targetFile = e.target.files[0];
+            fileNameText.innerText = targetFile.name;
+            fileNameDisplay.classList.remove('hidden');
+
+            // Initialize Form Data
+            const formData = new FormData();
+            formData.append('pdf', targetFile);
+
+            // Set UI Loading states across components
+            pdfFileInput.disabled = true;
+            dropZone.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            uploadStatusContainer.className = "p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-amber-950/20 border-amber-800/50 text-amber-400";
+            statusIcon.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin mt-0.5"></i>`;
+            uploadStatus.innerText = "Ingesting chunks into Vector DB...";
+            uploadStatusContainer.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error('Ingestion pipeline rejected payload.');
+                const data = await response.json();
+                
+                // Update layout to Success state
+                uploadStatusContainer.className = "p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-emerald-950/20 border-emerald-800/50 text-emerald-400";
+                statusIcon.innerHTML = `<i class="fa-solid fa-circle-check mt-0.5"></i>`;
+                uploadStatus.innerText = "Document ingested perfectly!";
+            } catch (err) {
+                // Update layout to Failure state
+                uploadStatusContainer.className = "p-3.5 rounded-xl border text-xs flex items-start gap-2.5 bg-rose-950/20 border-rose-800/50 text-rose-400";
+                statusIcon.innerHTML = `<i class="fa-solid fa-circle-exclamation mt-0.5"></i>`;
+                uploadStatus.innerText = "Error chunking structural frames.";
+                console.error(err);
+            } finally {
+                // Re-enable input element so users can swap files later if needed
+                pdfFileInput.disabled = false;
+                dropZone.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        // Handle Conversational Routing & Thinking state updates
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inputField = document.getElementById('userInput');
+            const query = inputField.value.trim();
+            if (!query) return;
+
+            // Render Prompt Bubble
+            appendMessage(query, 'user');
+            inputField.value = '';
+
+            // Lock Input area & swap icon to processing indicator
+            inputField.disabled = true;
+            chatSubmitBtn.disabled = true;
+            chatSubmitBtn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin text-xs"></i>`;
+
+            // Inject the dynamic thinking node block into frame
+            const thinkingElement = appendThinkingIndicator();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+                const data = await response.json();
+                
+                // Clear the loader skeleton reference node
+                thinkingElement.remove();
+                
+                // Parse markdown strings safely into HTML nodes
+                const llmResponse = await marked.parse(data.llmResponse);
+                appendMessage(llmResponse, 'ai');
+            } catch (err) {
+                if (thinkingElement) thinkingElement.remove();
+                appendMessage(`Error synthesizing embedding layers from target nodes. \n[${err}]`, 'ai-error');
+            } finally {
+                // Recalibrate conversational forms back into functional interactive scope
+                inputField.disabled = false;
+                chatSubmitBtn.disabled = false;
+                chatSubmitBtn.innerHTML = `<i class="fa-solid fa-paper-plane text-xs"></i>`;
+                inputField.focus();
+            }
+        });
+
+        // Factory pattern generating standard text delivery bubbles
+        function appendMessage(text, sender) {
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = "flex items-start gap-3 max-w-2xl w-full";
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = "w-8 h-8 rounded-full flex items-center justify-center border flex-shrink-0 text-xs";
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "p-4 rounded-2xl shadow-md leading-relaxed text-sm prose prose-invert max-w-none";
+            
+            if (sender === 'user') {
+                wrapperDiv.className += " self-end flex-row-reverse";
+                avatarDiv.className += " bg-indigo-600 border-indigo-500 text-white";
+                avatarDiv.innerHTML = `<i class="fa-solid fa-user"></i>`;
+                msgDiv.className += " bg-indigo-600 text-white rounded-tr-none";
+                msgDiv.innerText = text; // User input stays raw plain-text
+            } else if (sender === 'ai') {
+                wrapperDiv.className += " self-start";
+                avatarDiv.className += " bg-[#1f2937] border-gray-800 text-indigo-400";
+                avatarDiv.innerHTML = `<i class="fa-solid fa-robot"></i>`;
+                msgDiv.className += " bg-[#1f2937] border border-gray-800 text-gray-200 rounded-tl-none";
+                msgDiv.innerHTML = text; // AI parsed markdown injects into innerHTML securely
+            } else { // Error handling representation states
+                wrapperDiv.className += " self-start";
+                avatarDiv.className += " bg-rose-950/40 border-rose-900/50 text-rose-400";
+                avatarDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+                msgDiv.className += " bg-rose-950/20 border border-rose-900/40 text-rose-400 rounded-tl-none";
+                msgDiv.innerText = text;
+            }
+            
+            wrapperDiv.appendChild(avatarDiv);
+            wrapperDiv.appendChild(msgDiv);
+            chatWindow.appendChild(wrapperDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Generate temporary dynamic node block acting as AI thinking feedback module
+        function appendThinkingIndicator() {
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = "flex items-start gap-3 max-w-2xl w-full self-start animate-pulse";
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = "w-8 h-8 rounded-full bg-[#1f2937] border border-gray-800 text-gray-500 flex items-center justify-center flex-shrink-0 text-xs";
+            avatarDiv.innerHTML = `<i class="fa-solid fa-robot"></i>`;
+
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = "bg-[#1f2937] border border-gray-800 text-gray-400 p-4 rounded-2xl rounded-tl-none shadow-md flex items-center gap-2 text-sm";
+            thinkingDiv.innerHTML = `
+                <span class="font-medium text-xs tracking-wide text-gray-500 uppercase mr-1">Thinking</span>
+                <div class="flex gap-1 items-center h-2">
+                    <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full dot"></span>
+                    <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full dot"></span>
+                    <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full dot"></span>
+                </div>
+            `;
+
+            wrapperDiv.appendChild(avatarDiv);
+            wrapperDiv.appendChild(thinkingDiv);
+            chatWindow.appendChild(wrapperDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            return wrapperDiv;
+        }
+    </script>
+</body>
+</html>
