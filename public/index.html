@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,126 +15,175 @@
             width: 5px;
             height: 5px;
         }
+
         ::-webkit-scrollbar-track {
             background: #0b0f19;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #1e293b;
             border-radius: 10px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #334155;
         }
+
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
         }
-        .dot { animation: bounce 1s infinite ease-in-out; }
-        .dot:nth-child(2) { animation-delay: 0.15s; }
-        .dot:nth-child(3) { animation-delay: 0.3s; }
-        
+
+        .dot {
+            animation: bounce 1s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
         /* Smooth fade-in transitions for messages */
         .message-fade {
             animation: fadeIn 0.25s ease-out forwards;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body class="bg-[#0b0f19] text-slate-200 h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
 
-    <header class="bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-800/60 px-6 py-3.5 flex items-center justify-between z-20 sticky top-0">
+    <header
+        class="bg-[#0f172a]/80 backdrop-blur-md border-b border-slate-800/60 px-6 py-3.5 flex items-center justify-between z-20 sticky top-0">
         <div class="flex items-center gap-3">
-            <div class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2 rounded-xl text-white shadow-md shadow-indigo-600/10">
+            <div
+                class="bg-gradient-to-tr from-indigo-600 to-violet-500 p-2 rounded-xl text-white shadow-md shadow-indigo-600/10">
                 <i class="fa-solid fa-folder-open text-base"></i>
             </div>
             <div>
                 <h1 class="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
-                    Chat Docs <span class="text-[10px] bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/20 font-normal">v1.1</span>
+                    Chat Docs <span
+                        class="text-[10px] bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/20 font-normal">v1.1</span>
                 </h1>
                 <p class="text-[11px] text-slate-400">Contextual Engine & Vector Assistant</p>
             </div>
         </div>
         <div class="flex items-center gap-4 text-xs text-slate-400">
-            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Nodes Synced</span>
+            <span class="flex items-center gap-1.5"><span
+                    class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Nodes Synced</span>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        
+
         <aside class="w-80 bg-[#0f172a] border-r border-slate-800/60 p-5 flex flex-col justify-between hidden md:flex">
             <div class="space-y-5">
                 <div class="space-y-1">
                     <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Source Material</h2>
-                    <p class="text-[11px] text-slate-400 leading-relaxed">Drop your core material format framework below. Text matrix nodes extract immediately into memory frames.</p>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Drop your core material format framework
+                        below. Text matrix nodes extract immediately into memory frames.</p>
                 </div>
 
                 <div class="space-y-3">
-                    <div id="dropZone" class="border border-dashed border-slate-800 hover:border-indigo-500/50 bg-[#070a13]/50 hover:bg-[#070a13] rounded-xl p-6 transition duration-200 text-center group cursor-pointer relative">
-                        <input type="file" id="pdfFile" accept=".pdf" required 
-                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    <div id="dropZone"
+                        class="border border-dashed border-slate-800 hover:border-indigo-500/50 bg-[#070a13]/50 hover:bg-[#070a13] rounded-xl p-6 transition duration-200 text-center group cursor-pointer relative">
+                        <input type="file" id="pdfFile" accept=".pdf" required
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                         <div class="space-y-2.5">
-                            <div class="w-10 h-10 mx-auto rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800 group-hover:border-indigo-500/20 group-hover:text-indigo-400 transition text-slate-400">
+                            <div
+                                class="w-10 h-10 mx-auto rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800 group-hover:border-indigo-500/20 group-hover:text-indigo-400 transition text-slate-400">
                                 <i class="fa-solid fa-arrow-up-from-bracket text-sm"></i>
                             </div>
                             <div>
-                                <div class="text-xs text-slate-200 font-medium group-hover:text-indigo-400 transition">Upload Reference PDF</div>
+                                <div class="text-xs text-slate-200 font-medium group-hover:text-indigo-400 transition">
+                                    Upload Reference PDF</div>
                                 <p class="text-[10px] text-slate-500 mt-0.5">Maximum size boundary 10MB</p>
                             </div>
                         </div>
                     </div>
 
-                    <div id="fileNameDisplay" class="text-xs text-slate-300 truncate hidden bg-[#070a13] p-2.5 rounded-lg border border-slate-800/80 flex items-center gap-2">
-                        <i class="fa-solid fa-file-pdf text-rose-400 text-sm flex-shrink-0"></i> 
+                    <div id="fileNameDisplay"
+                        class="text-xs text-slate-300 truncate hidden bg-[#070a13] p-2.5 rounded-lg border border-slate-800/80 flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-rose-400 text-sm flex-shrink-0"></i>
                         <span id="fileNameText" class="truncate flex-1 font-medium"></span>
                     </div>
                 </div>
 
-                <div id="uploadStatusContainer" class="hidden p-3 rounded-xl border text-[11px] flex items-start gap-2.5 shadow-sm transition-all duration-300">
+                <div id="uploadStatusContainer"
+                    class="hidden p-3 rounded-xl border text-[11px] flex items-start gap-2.5 shadow-sm transition-all duration-300">
                     <div id="statusIcon" class="flex-shrink-0"></div>
                     <div id="uploadStatus" class="font-medium flex-1 leading-normal"></div>
                 </div>
             </div>
 
-            <div class="border-t border-slate-800/60 pt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-mono">
+            <div
+                class="border-t border-slate-800/60 pt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-mono">
                 <i class="fa-solid fa-lock text-[9px]"></i> Isolated Client Ingestion Buffer
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col bg-[#070a13]">
-            
-            <div id="chatWindow" class="flex-1 p-6 overflow-y-auto space-y-5 max-w-3xl w-full mx-auto flex flex-col selection:bg-indigo-500/20">
-                
+
+            <div id="chatWindow"
+                class="flex-1 p-6 overflow-y-auto space-y-5 max-w-3xl w-full mx-auto flex flex-col selection:bg-indigo-500/20">
+
                 <div class="flex items-start gap-3.5 max-w-2xl message-fade">
-                    <div class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 flex-shrink-0 shadow-sm">
+                    <div
+                        class="w-7 h-7 rounded-lg bg-indigo-600/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20 flex-shrink-0 shadow-sm">
                         <i class="fa-solid fa-circle-nodes text-[11px]"></i>
                     </div>
-                    <div class="bg-[#0f172a] border border-slate-800/50 text-slate-300 p-3.5 px-4 rounded-2xl rounded-tl-sm shadow-md leading-relaxed text-xs">
-                        Welcome to <span class="text-white font-medium">Chat Docs</span>. Mount any structural PDF vector payload along the sidebar configuration array, then invoke query layers below for context-synthesized indexing.
+                    <div
+                        class="bg-[#0f172a] border border-slate-800/50 text-slate-300 p-3.5 px-4 rounded-2xl rounded-tl-sm shadow-md leading-relaxed text-xs">
+                        Welcome to <span class="text-white font-medium">Chat Docs</span>. Mount any structural PDF
+                        vector payload along the sidebar configuration array, then invoke query layers below for
+                        context-synthesized indexing.
                     </div>
                 </div>
-                
+
             </div>
 
             <div class="p-4 bg-gradient-to-t from-[#070a13] via-[#070a13] to-transparent z-10">
                 <div class="max-w-3xl w-full mx-auto">
-                    <form id="chatForm" class="flex gap-2 bg-[#0f172a] p-1.5 pr-2 rounded-xl border border-slate-800/80 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all duration-200 shadow-xl items-center relative">
-                        <input type="text" id="userInput" placeholder="Ask a structured query against document arrays..." required autocomplete="off"
-                               class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 px-3.5 py-2 text-xs focus:outline-none" />
-                        <button type="submit" id="chatSubmitBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white w-8 h-8 rounded-lg flex items-center justify-center transition shadow-md shadow-indigo-600/10 focus:outline-none">
+                    <form id="chatForm"
+                        class="flex gap-2 bg-[#0f172a] p-1.5 pr-2 rounded-xl border border-slate-800/80 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all duration-200 shadow-xl items-center relative">
+                        <input type="text" id="userInput"
+                            placeholder="Ask a structured query against document arrays..." required autocomplete="off"
+                            class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 px-3.5 py-2 text-xs focus:outline-none" />
+                        <button type="submit" id="chatSubmitBtn"
+                            class="bg-indigo-600 hover:bg-indigo-500 text-white w-8 h-8 rounded-lg flex items-center justify-center transition shadow-md shadow-indigo-600/10 focus:outline-none">
                             <i class="fa-solid fa-arrow-up text-xs"></i>
                         </button>
                     </form>
-                    <p class="text-center text-[10px] text-slate-500 mt-2.5 tracking-wide">Synthesized tokens balance across target vector parameters.</p>
+                    <p class="text-center text-[10px] text-slate-500 mt-2.5 tracking-wide">Synthesized tokens balance
+                        across target vector parameters.</p>
                 </div>
             </div>
         </main>
     </div>
 
     <script type="module">
-        import {fetchEventSource} from "https://esm.sh/@microsoft/fetch-event-source"
+        import { fetchEventSource } from "https://esm.sh/@microsoft/fetch-event-source"
         const chatForm = document.getElementById('chatForm');
         const chatWindow = document.getElementById('chatWindow');
         const uploadStatus = document.getElementById('uploadStatus');
@@ -144,7 +194,21 @@
         const fileNameText = document.getElementById('fileNameText');
         const chatSubmitBtn = document.getElementById('chatSubmitBtn');
         const dropZone = document.getElementById('dropZone');
-        
+        let chatHistory = []
+        function addChatInHistory(user, msg) {
+            const message = { role: user, message: msg }
+            chatHistory.push(message)
+        }
+        function stripMarkdown(markdownString) {
+            return markdownString
+                .replace(/(\*\*|__)(.*?)\1/g, '$2')          // Clean bold
+                .replace(/(\*|_)(.*?)\1/g, '$2')             // Clean italics
+                .replace(/`([^`]+)`/g, '$1')                 // Clean inline code
+                .replace(/#+\s+(.*)/g, '$1')                 // Clean headers
+                .replace(/-\s+/g, '')                        // Clean bullet points
+                .replace(/[\[\]\(\)]/g, '');                 // Clean links/images syntax
+        }
+
         // Document Pipeline Ingestion
         pdfFileInput.addEventListener('change', async (e) => {
             if (e.target.files.length === 0) {
@@ -161,7 +225,7 @@
 
             pdfFileInput.disabled = true;
             dropZone.classList.add('opacity-40', 'cursor-not-allowed');
-            
+
             uploadStatusContainer.className = "p-3 rounded-xl border text-[11px] flex items-start gap-2.5 bg-amber-500/5 border-amber-500/20 text-amber-400 shadow-sm shadow-amber-500/5";
             statusIcon.innerHTML = `<i class="fa-solid fa-spinner animate-spin mt-0.5"></i>`;
             uploadStatus.innerText = "Fragmenting matrix layers into active vectors...";
@@ -171,7 +235,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error('Ingestion pipeline rejected payload.');
                 const data = await response.json();
-                
+
                 uploadStatusContainer.className = "p-3 rounded-xl border text-[11px] flex items-start gap-2.5 bg-emerald-500/5 border-emerald-500/20 text-emerald-400 shadow-sm shadow-emerald-500/5";
                 statusIcon.innerHTML = `<i class="fa-solid fa-circle-check mt-0.5"></i>`;
                 uploadStatus.innerText = "Payload indexed cleanly to vector database.";
@@ -194,6 +258,7 @@
             if (!query) return;
 
             appendMessage(query, 'user');
+            addChatInHistory("user", query)
             inputField.value = '';
 
             inputField.disabled = true;
@@ -213,11 +278,11 @@
 
             const msgDiv = document.createElement('div');
             msgDiv.className = "p-3.5 px-4 rounded-2xl rounded-tl-sm shadow-md leading-relaxed text-xs bg-[#0f172a] border border-slate-800/60 text-slate-300 max-w-none flex-1 overflow-x-auto prose prose-invert prose-xs";
-            
+
             wrapperDiv.appendChild(avatarDiv);
             wrapperDiv.appendChild(msgDiv);
             chatWindow.appendChild(wrapperDiv);
-            
+
             // Track clean text data context outside standard HTML structures
             let totalAccumulatedMarkdown = "";
 
@@ -225,13 +290,13 @@
                 await fetchEventSource("/chat", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query }),
+                    body: JSON.stringify({ query: query, chatHistory: chatHistory }),
                     async onmessage(msg) {
                         if (thinkingElement) {
                             thinkingElement.remove();
                         }
                         if (msg.data === "[DONE]") return;
-                        
+
                         // Reveal the parent container bubble on first incoming block element
                         if (wrapperDiv.classList.contains('hidden')) {
                             wrapperDiv.classList.remove('hidden');
@@ -242,7 +307,7 @@
                         // FIX: Accumulate raw stream data stringently before calling parser engine
                         totalAccumulatedMarkdown += (parsed.content || "");
                         msgDiv.innerHTML = await marked.parse(totalAccumulatedMarkdown);
-                        
+
                         chatWindow.scrollTop = chatWindow.scrollHeight;
                     },
                     onerror(err) {
@@ -254,8 +319,8 @@
             } catch (err) {
                 if (thinkingElement) thinkingElement.remove();
                 // If stream died after rendering some tokens, display error outside of message payload block
-                if(totalAccumulatedMarkdown === "") {
-                     appendMessage(`Execution abort: Pipeline breakdown mapping context components.\n[${err}]`, 'ai-error');
+                if (totalAccumulatedMarkdown === "") {
+                    appendMessage(`Execution abort: Pipeline breakdown mapping context components.\n[${err}]`, 'ai-error');
                 }
             } finally {
                 inputField.disabled = false;
@@ -264,6 +329,10 @@
                 chatSubmitBtn.innerHTML = `<i class="fa-solid fa-arrow-up text-xs"></i>`;
                 inputField.focus();
                 chatWindow.scrollTop = chatWindow.scrollHeight;
+                const plainText = stripMarkdown(totalAccumulatedMarkdown)
+                if(plainText.trim()!=""){
+                    addChatInHistory("AI", plainText)
+                }
             }
         });
 
@@ -277,21 +346,21 @@
 
             const msgDiv = document.createElement('div');
             msgDiv.className = "p-3.5 px-4 rounded-2xl shadow-md leading-relaxed text-xs max-w-none flex-1";
-            
+
             if (sender === 'user') {
                 wrapperDiv.className += " self-end flex-row-reverse";
                 avatarDiv.className += " bg-indigo-600 border-indigo-500 text-white";
                 avatarDiv.innerHTML = `<i class="fa-solid fa-user text-[10px]"></i>`;
                 msgDiv.className += " bg-indigo-600 text-white rounded-tr-none";
-                msgDiv.innerText = text; 
-            } else { 
+                msgDiv.innerText = text;
+            } else {
                 wrapperDiv.className += " self-start";
                 avatarDiv.className += " bg-rose-500/10 border-rose-500/20 text-rose-400";
                 avatarDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
                 msgDiv.className += " bg-rose-500/5 border border-rose-500/10 text-rose-400 rounded-tl-none font-mono";
                 msgDiv.innerText = text;
             }
-            
+
             wrapperDiv.appendChild(avatarDiv);
             wrapperDiv.appendChild(msgDiv);
             chatWindow.appendChild(wrapperDiv);
@@ -326,4 +395,5 @@
         }
     </script>
 </body>
+
 </html>

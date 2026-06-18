@@ -7,6 +7,7 @@ import { generateLLMResponse } from "./src/RAG/data-generation.js"
 import path, { dirname } from "path"
 import { fileURLToPath } from "url"
 import morgan from "morgan"
+import { convertChatHistorToLangchainChat } from "./src/utils/convert-chat-history-to-langchain-chat.js"
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -30,11 +31,44 @@ app.post("/upload", upload.single('pdf'), (req, res) => {
 })
 
 app.post("/chat", async (req, res) => {
-    const { query } = req.body
-    const relatedDocs = await dataRetrieval(query)
-    const response = await generateLLMResponse(query, relatedDocs, res)
-    // res.json({ query: query, llmResponse: response, })
+    const { query, chatHistory } = req.body
+    const chatMessages = convertChatHistorToLangchainChat(chatHistory)
+    const relatedDocs = await dataRetrieval(query, chatMessages)
+    generateLLMResponse(query, relatedDocs, chatMessages, res)
+
+    // generateCondensedQuery('How do they detect those local features like edges?', [
+    //     {
+    //         "role": "user",
+    //         "message": "Why do we need to split data into a training set and a test set?"
+    //     },
+    //     {
+    //         "role": "assistant",
+    //         "message": "The training set is used to teach the model, whether it's an ANN or CNN, by learning the patterns and relationships in the data. The test set is reserved to evaluate how well the trained model performs on unseen data, ensuring that it can generalize to new, real-world cases."
+    //     },
+    //     {
+    //         "role": "user",
+    //         "message": "What happens if we don't use a test set and just train on everything?"
+    //     },
+    //     {
+    //         "role": "assistant",
+    //         "message": "By splitting the data into training and test sets, we can prevent the models from overfitting, where they might memorize the data instead of learning the underlying patterns. The test set provides a realistic evaluation of how the model would perform in real-world scenarios when deployed."
+    //     },
+    //     {
+    //         "role": "user",
+    //         "message": "That makes sense. Now, when is a CNN particularly useful compared to a standard ANN?"
+    //     },
+    //     {
+    //         "role": "assistant",
+    //         "message": "The use of CNN is particularly useful for tasks like image classification, object detection, or any task where spatial hierarchies and patterns are important. CNNs apply convolutional filters to detect local features, such as edges, textures, and shapes, making them highly effective in visual data analysis."
+    //     },
+    //     {
+    //         "role": "user",
+    //         "message": "How do they detect those local features like edges?"
+    //     }
+    // ])
 })
+
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 
