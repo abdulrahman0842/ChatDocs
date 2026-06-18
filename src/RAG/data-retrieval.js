@@ -2,6 +2,8 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai"
 import chromaCollection from "../config/chroma.js"
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
 import { llm } from "../config/llm.js"
+import dotenv from "dotenv"
+dotenv.config()
 
 // Embedd Query
 const EmbeddQuery = async (query) => {
@@ -47,7 +49,7 @@ const generateCondensedQuery = async (query, chatHistory) => {
 
 export const dataRetrieval = async (query, chatHistory) => {
     try {
-        
+
         // 1. Generate Standalone query if it is not first query
         let condensedQuery = query
         if (chatHistory.length > 1) {

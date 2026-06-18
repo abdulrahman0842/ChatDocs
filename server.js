@@ -8,6 +8,8 @@ import path, { dirname } from "path"
 import { fileURLToPath } from "url"
 import morgan from "morgan"
 import { convertChatHistorToLangchainChat } from "./src/utils/convert-chat-history-to-langchain-chat.js"
+import dotenv from "dotenv"
+dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 5000
