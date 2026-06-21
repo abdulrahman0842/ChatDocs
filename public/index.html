@@ -194,11 +194,7 @@
         const fileNameText = document.getElementById('fileNameText');
         const chatSubmitBtn = document.getElementById('chatSubmitBtn');
         const dropZone = document.getElementById('dropZone');
-        let chatHistory = []
-        function addChatInHistory(user, msg) {
-            const message = { role: user, message: msg }
-            chatHistory.push(message)
-        }
+        
         function stripMarkdown(markdownString) {
             return markdownString
                 .replace(/(\*\*|__)(.*?)\1/g, '$2')          // Clean bold
@@ -258,7 +254,6 @@
             if (!query) return;
 
             appendMessage(query, 'user');
-            addChatInHistory("user", query)
             inputField.value = '';
 
             inputField.disabled = true;
@@ -290,7 +285,7 @@
                 await fetchEventSource("/chat", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query, chatHistory: chatHistory }),
+                    body: JSON.stringify({ query: query}),
                     async onmessage(msg) {
                         if (thinkingElement) {
                             thinkingElement.remove();
@@ -329,10 +324,6 @@
                 chatSubmitBtn.innerHTML = `<i class="fa-solid fa-arrow-up text-xs"></i>`;
                 inputField.focus();
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-                const plainText = stripMarkdown(totalAccumulatedMarkdown)
-                if(plainText.trim()!=""){
-                    addChatInHistory("AI", plainText)
-                }
             }
         });
 

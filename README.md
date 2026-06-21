@@ -4,7 +4,7 @@
 
 A full-stack web application that enables intelligent conversations about PDF documents using advanced language models, vector embeddings, and contextual retrieval. Upload your documents and chat with an AI assistant that understands your content through semantic search and context-aware responses.
 
-**Live Demo:** [https://chat-docs-navy.vercel.app](https://chat-docs-navy.vercel.app)
+**Live Demo:** [https://chatdocs-5938.onrender.com/](https://chatdocs-5938.onrender.com/)
 
 ---
 

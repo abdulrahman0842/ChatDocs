@@ -1,5 +1,6 @@
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
 import { llm } from "../config/llm.js"
+import { insertChatMessage } from "../config/redis.js"
 
 // This function mocks the chain.stream() behaviour 
 // async function* mockLLMStream(query) {
@@ -37,7 +38,7 @@ const prepareContext = (relatedDocs) => {
     return context
 }
 
-export const generateLLMResponse = async (query, relatedDocs, chatHistory, res) => {
+export const generateLLMResponse = async (query, relatedDocs, chatHistory, res, redisKey) => {
     try {
         // 1. Stringify the retrieved related documents from vector DB
         const context = prepareContext(relatedDocs)
@@ -68,17 +69,18 @@ export const generateLLMResponse = async (query, relatedDocs, chatHistory, res) 
         // 5. Invoke LLM as stream response
         const stream = await chain.stream({ context: context, query: query, chatHistory: chatHistory })
         // const stream = await mockLLMStream(query)
-        
+        let message = ""
         // 6. Sent chunk of response
         for await (let chunk of stream) {
             const content = chunk.content || ""
+            message += content
             res.write(`data:${JSON.stringify({ content })}\n\n`)
         }
-
+        insertChatMessage("assistant", message, redisKey)
         // 7. LLM response complete send final [DONE] flag and Close connection
         res.write(`data:[DONE]\n\n`)
         res.end()
-        
+
     } catch (error) {
         console.log('Error in LLM Generation:=>', error)
         if (!res.headersSent) {

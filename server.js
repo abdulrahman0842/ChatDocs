@@ -9,6 +9,10 @@ import { fileURLToPath } from "url"
 import morgan from "morgan"
 import { convertChatHistorToLangchainChat } from "./src/utils/convert-chat-history-to-langchain-chat.js"
 import dotenv from "dotenv"
+import { v4 as uuid4 } from "uuid"
+import cookieParser from "cookie-parser"
+import { insertChatMessage, redisClient } from "./src/config/redis.js"
+
 dotenv.config()
 
 const app = express()
@@ -18,10 +22,19 @@ const __dirname = dirname(__filename)
 app.use(express.json())
 app.use(cors())
 app.use(morgan('dev'))
-app.use(express.static(path.join(__dirname, "public")))
+app.use(cookieParser())
+// app.use(express.static(path.join(__dirname, "public")))
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public"))
+    const sessionId = uuid4()
+    console.log(sessionId)
+    res.cookie('chat_seesion_id', sessionId, {
+        httpOnly: true,
+        secure: false,
+        maxAge: 86400000,
+        sameSite: 'lax'
+    })
+    res.sendFile(path.join(__dirname, "public", "index.html"))
 })
 
 app.post("/upload", upload.single('pdf'), (req, res) => {
@@ -33,10 +46,15 @@ app.post("/upload", upload.single('pdf'), (req, res) => {
 })
 
 app.post("/chat", async (req, res) => {
-    const { query, chatHistory } = req.body
+    const { query } = req.body
+    const sessionId = req.cookies.chat_seesion_id
+    const redisKey = `chat:${sessionId}`
+    const chatHistory = await redisClient.lrange(redisKey, 0, -1)
+
     const chatMessages = convertChatHistorToLangchainChat(chatHistory)
     const relatedDocs = await dataRetrieval(query, chatMessages)
-    generateLLMResponse(query, relatedDocs, chatMessages, res)
+    generateLLMResponse(query, relatedDocs, chatMessages, res, redisKey)
+    insertChatMessage("user", query, redisKey)
 
     // generateCondensedQuery('How do they detect those local features like edges?', [
     //     {
