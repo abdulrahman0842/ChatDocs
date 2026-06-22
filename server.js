@@ -38,11 +38,13 @@ app.get("/", (req, res) => {
 })
 
 app.post("/upload", upload.single('pdf'), (req, res) => {
+    const sessionId = req.cookies.chat_seesion_id
+
     if (!req.file) {
         res.status(400).json({ "msg": "File not uploaded" })
     }
-    initDataIngestion(req.file.path)
-    res.json({ msg: "file recieved", file: { name: req.file.originalname } })
+    initDataIngestion(req.file.buffer)
+    res.json({ msg: "file recieved", file: { name: req.file.filename } })
 })
 
 app.post("/chat", async (req, res) => {

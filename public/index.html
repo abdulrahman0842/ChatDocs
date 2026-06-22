@@ -231,7 +231,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error('Ingestion pipeline rejected payload.');
                 const data = await response.json();
-
+                console.log(data)
                 uploadStatusContainer.className = "p-3 rounded-xl border text-[11px] flex items-start gap-2.5 bg-emerald-500/5 border-emerald-500/20 text-emerald-400 shadow-sm shadow-emerald-500/5";
                 statusIcon.innerHTML = `<i class="fa-solid fa-circle-check mt-0.5"></i>`;
                 uploadStatus.innerText = "Payload indexed cleanly to vector database.";

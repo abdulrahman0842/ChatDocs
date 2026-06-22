@@ -8,9 +8,11 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai"
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import chromaCollection from "../config/chroma.js";
 
+import { v4 as uuid4 } from "uuid"
+
 // 1. Load PDF
-const loadPdf = async (filePath) => {
-    const parser = new PDFParse({ url: filePath, })
+const loadPdf = async (buffer) => {
+    const parser = new PDFParse({ data: buffer, })
     const data = await parser.getText()
     return new Document(
         {
@@ -25,7 +27,7 @@ const loadPdf = async (filePath) => {
 const chunkPdf = async (document) => {
     const splitter = new RecursiveCharacterTextSplitter({
         chunkSize: 1000,
-        chunkOverLap: 200
+        chunkOverlap: 200
     })
 
     const chunks = splitter.splitDocuments([document])
@@ -44,7 +46,7 @@ export const EmbedChunk = async (chunks) => {
 }
 // 4. Storing in VectorDB
 const StoreVectors = async (ids, docs, embeddings) => {
-   const result = await chromaCollection.add({
+    const result = await chromaCollection.add({
         ids: ids,
         documents: docs,
         embeddings: embeddings
@@ -52,19 +54,23 @@ const StoreVectors = async (ids, docs, embeddings) => {
     return result
 }
 
-export const initDataIngestion = async (filePath) => {
+export const initDataIngestion = async (buffer, sessiondId) => {
     try {
-        const docs = await loadPdf(filePath)
+        const docs = await loadPdf(buffer)
 
         const chunks = await chunkPdf(docs)
 
         const vectors = await EmbedChunk(chunks)
 
         let ids = []
+        let metadatas = []
 
         for (let i = 1; i <= chunks.length; i++) {
-            const id = `doc_${i + 1}`
+            const id = `doc_${uuid4()}_${i}`
+            const metadata = { sessiondId: sessiondId }
             ids.push(id)
+            metadatas.push(metadata)
+
         }
         const chunks_text = chunks.map(chunk => chunk.pageContent)
         const response = await StoreVectors(ids, chunks_text, vectors)
