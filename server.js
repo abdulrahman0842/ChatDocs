@@ -27,7 +27,6 @@ app.use(cookieParser())
 
 app.get("/", (req, res) => {
     const sessionId = uuid4()
-    console.log(sessionId)
     res.cookie('chat_seesion_id', sessionId, {
         httpOnly: true,
         secure: false,
@@ -43,7 +42,7 @@ app.post("/upload", upload.single('pdf'), (req, res) => {
     if (!req.file) {
         res.status(400).json({ "msg": "File not uploaded" })
     }
-    initDataIngestion(req.file.buffer)
+    initDataIngestion(req.file.buffer, sessionId)
     res.json({ msg: "file recieved", file: { name: req.file.filename } })
 })
 
@@ -54,7 +53,7 @@ app.post("/chat", async (req, res) => {
     const chatHistory = await redisClient.lrange(redisKey, 0, -1)
 
     const chatMessages = convertChatHistorToLangchainChat(chatHistory)
-    const relatedDocs = await dataRetrieval(query, chatMessages)
+    const relatedDocs = await dataRetrieval(query, chatMessages,sessionId)
     generateLLMResponse(query, relatedDocs, chatMessages, res, redisKey)
     insertChatMessage("user", query, redisKey)
 

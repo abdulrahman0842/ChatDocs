@@ -5,7 +5,6 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai"
 
-import { Chroma } from "@langchain/community/vectorstores/chroma";
 import chromaCollection from "../config/chroma.js";
 
 import { v4 as uuid4 } from "uuid"
@@ -18,7 +17,7 @@ const loadPdf = async (buffer) => {
         {
             pageContent: data.text,
             metadata: {
-                source: filePath
+
             }
         }
     )
@@ -45,16 +44,17 @@ export const EmbedChunk = async (chunks) => {
     return vector
 }
 // 4. Storing in VectorDB
-const StoreVectors = async (ids, docs, embeddings) => {
+const StoreVectors = async (ids, docs, embeddings, metadatas) => {
     const result = await chromaCollection.add({
         ids: ids,
         documents: docs,
-        embeddings: embeddings
+        embeddings: embeddings,
+        metadatas: metadatas
     })
     return result
 }
 
-export const initDataIngestion = async (buffer, sessiondId) => {
+export const initDataIngestion = async (buffer, sessionId) => {
     try {
         const docs = await loadPdf(buffer)
 
@@ -67,13 +67,13 @@ export const initDataIngestion = async (buffer, sessiondId) => {
 
         for (let i = 1; i <= chunks.length; i++) {
             const id = `doc_${uuid4()}_${i}`
-            const metadata = { sessiondId: sessiondId }
+            const metadata = { sessionId: sessionId }
             ids.push(id)
             metadatas.push(metadata)
 
         }
         const chunks_text = chunks.map(chunk => chunk.pageContent)
-        const response = await StoreVectors(ids, chunks_text, vectors)
+        const response = await StoreVectors(ids, chunks_text, vectors, metadatas)
         return response
     } catch (error) {
         console.log('Something went wrong ----', error);

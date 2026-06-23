@@ -16,8 +16,11 @@ const EmbeddQuery = async (query) => {
     return vector
 }
 // Fetch related Documents
-const fetchSimilarDocs = async (queryVector) => {
-    const docs = await chromaCollection.query({ queryEmbeddings: queryVector })
+const fetchSimilarDocs = async (queryVector, sessionId) => {
+    const docs = await chromaCollection.query({
+        queryEmbeddings: queryVector,
+        where: { "sessionId": sessionId }
+    })
     return docs
 }
 
@@ -47,7 +50,7 @@ const generateCondensedQuery = async (query, chatHistory) => {
 
 }
 
-export const dataRetrieval = async (query, chatHistory) => {
+export const dataRetrieval = async (query, chatHistory, sessionId) => {
     try {
 
         // 1. Generate Standalone query if it is not first query
@@ -61,7 +64,7 @@ export const dataRetrieval = async (query, chatHistory) => {
         const queryVector = await EmbeddQuery(condensedQuery)
 
         // 3. Search for similar documents in VectorDB
-        const relatedDocs = await fetchSimilarDocs([queryVector])
+        const relatedDocs = await fetchSimilarDocs([queryVector], sessionId)
 
         // 4. Return related documents
         return relatedDocs
