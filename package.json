@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch server",
+    "dev": "nodemon server.js",
     "start": "node server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,5 +26,8 @@
     "multer": "^2.1.1",
     "pdf-parse": "^2.4.5",
     "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

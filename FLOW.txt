@@ -1,0 +1,21 @@
+"gemini-2.5-flash","models/gemini-embedding-001" i'm using these two on free tier, and here is the app flow,
+
+user upload pdf
+pdf split and embedded (Gemini embedding)
+store in chromadb
+then user send query
+if it is first question direclty embed it and search related vectors
+if its not first query 
+give query and chat history to llm and generate standalone query (Gemini llm)
+then embedd standalone query and search related vectors
+then take query and related documents and chat history and call llm (Gemini llm)
+this will get final response
+
+Currenlty only one user working (Me - testing it)
+
+if we skip user upload pdf step and only count q&a 
+then there will be 3 req per minute
+if inlcude pdf upload and q&a 4 req per minute
+
+on dashboard it shows 5rpm allowed
+still i'm getting 429

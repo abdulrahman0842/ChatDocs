@@ -6,19 +6,19 @@ import dotenv from "dotenv"
 dotenv.config()
 
 // Embedd Query
-const EmbeddQuery = async (query) => {
-    const embeddings = new GoogleGenerativeAIEmbeddings({
-        apiKey: process.env.GOOGLE_API_KEY,
-        model: "models/gemini-embedding-001",
-    })
+// Inside chroma client added a embedding function that will handle the embedding it's own
+// This method manually perfom embedding 
+// Not in use right now
+// const EmbeddQuery = async (query) => {
+//     const vector = await embedding.embedQuery(query)
+//     return vector
+// }
 
-    const vector = await embeddings.embedQuery(query)
-    return vector
-}
+
 // Fetch related Documents
-const fetchSimilarDocs = async (queryVector, sessionId) => {
+const fetchSimilarDocs = async (queryText, sessionId) => {
     const docs = await chromaCollection.query({
-        queryEmbeddings: queryVector,
+        queryTexts: queryText,
         where: { "sessionId": sessionId }
     })
     return docs
@@ -61,10 +61,10 @@ export const dataRetrieval = async (query, chatHistory, sessionId) => {
         }
 
         // 2. Create embedding of query
-        const queryVector = await EmbeddQuery(condensedQuery)
+        // const queryVector = await EmbeddQuery(condensedQuery)
 
         // 3. Search for similar documents in VectorDB
-        const relatedDocs = await fetchSimilarDocs([queryVector], sessionId)
+        const relatedDocs = await fetchSimilarDocs([condensedQuery], sessionId)
 
         // 4. Return related documents
         return relatedDocs

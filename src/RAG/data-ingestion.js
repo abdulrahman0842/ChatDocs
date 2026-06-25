@@ -9,6 +9,7 @@ import chromaCollection from "../config/chroma.js";
 
 import { v4 as uuid4 } from "uuid"
 
+import { embedding } from "../config/embedding.js";
 // 1. Load PDF
 const loadPdf = async (buffer) => {
     const parser = new PDFParse({ data: buffer, })
@@ -32,23 +33,21 @@ const chunkPdf = async (document) => {
     const chunks = splitter.splitDocuments([document])
     return chunks
 }
-// 3. Embedding
-export const EmbedChunk = async (chunks) => {
-    const embeddings = new GoogleGenerativeAIEmbeddings({
-        apiKey: process.env.GOOGLE_API_KEY,
-        model: "models/gemini-embedding-001",
-    })
+// 3. Embedding 
+// Inside chroma client added a embedding function that will handle the embedding it's own
+// This method manually perfom embedding 
+// Not in use right now
+// export const EmbedChunk = async (chunks) => {
 
-    const rawText = chunks.map(chunk => chunk.pageContent)
-    const vector = await embeddings.embedDocuments(rawText)
-    return vector
-}
+//     const rawText = chunks.map(chunk => chunk.pageContent)
+//     const vector = await embedding.embedDocuments(rawText)
+//     return vector
+// }
 // 4. Storing in VectorDB
-const StoreVectors = async (ids, docs, embeddings, metadatas) => {
+const StoreVectors = async (ids, docs, metadatas) => {
     const result = await chromaCollection.add({
         ids: ids,
         documents: docs,
-        embeddings: embeddings,
         metadatas: metadatas
     })
     return result
@@ -60,7 +59,7 @@ export const initDataIngestion = async (buffer, sessionId) => {
 
         const chunks = await chunkPdf(docs)
 
-        const vectors = await EmbedChunk(chunks)
+        // const vectors = await EmbedChunk(chunks)
 
         let ids = []
         let metadatas = []
@@ -73,7 +72,7 @@ export const initDataIngestion = async (buffer, sessionId) => {
 
         }
         const chunks_text = chunks.map(chunk => chunk.pageContent)
-        const response = await StoreVectors(ids, chunks_text, vectors, metadatas)
+        const response = await StoreVectors(ids, chunks_text, metadatas)
         return response
     } catch (error) {
         console.log('Something went wrong ----', error);
